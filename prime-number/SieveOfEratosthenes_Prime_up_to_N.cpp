@@ -15,6 +15,12 @@ bool* SieveOfEratosthenes(ll N) { // Check prime from 2 -> N
             prime[j] = false;
         }
     }
+    
+    // Print
+    // for (ll i = 2; i <= N; i++) {
+    //     if (prime[i]) cout << i << " ";
+    // }
+    // cout << "\n";
     return prime;
 }
 
