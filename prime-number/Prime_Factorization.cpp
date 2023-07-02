@@ -10,6 +10,7 @@ void primeFactorization(ll n) {
     }
 
     // All remaining factors must be odd number start with 3
+    // Prime factor of a number can not greater than its square root
     for (ll j = 3; j*j <= n; j += 2) {
         while (n % j == 0) {
             cout << j << " ";
