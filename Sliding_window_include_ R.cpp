@@ -89,10 +89,14 @@ void solve() {
     cin >> n >> t;
     int books[n];
     f(i,0,n) cin >> books[i];
-    int l = 0, r = 0, sum = 0, ans = -1;
-    // l is start pointer of the window, r-1 is end pointer (so r is no included yet until it is checked to be valid)
-    // Always keep [l,r-1] valid, check if [l,r] is valid, if valid => r can be added in range, then increase r for next check
-    // if [l,r] not valid => remove l from range
+    int l = 0, r = 0, sum = 0, ans = -1;    // r = 0 mean we not accept index 0, r = 1 mean we accept index 0
+    
+    // index l is start pointer of the window, and index r-1 is end pointer 
+    // ===> so index r is no included yet until it is checked to be valid
+
+    // Always keep [l,r-1] valid, check if index r is valid (range [l, r] is valid)
+    // + if valid => r can be added in range, then increase r for next check
+    // + if [l,r] not valid => gradually increase l to get valid range
     while (r <= n - 1) { 
         int nextSum = sum + books[r];
         if (nextSum <= t) sum += books[r++];
