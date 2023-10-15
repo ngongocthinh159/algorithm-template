@@ -24,8 +24,12 @@ using namespace std;
 // if after increase/decrease i/j, we still see that i < j:
 // => We can swap value of i, j (because we sure that value at i will be right side of value at j)
 // Repeat swapping i, j until j < i
+// After done swapping between i and j until j < i:
+// - Now we know the fact that all the value from [j+1,high) or [i, high) must always > pivot (due to we let j traverse only when j > pivot , or j <= pivot we swap to get j > pivot)
+// - We also know the fact that all the value from [low+1,i-1] or [low+1,j] must always <= pivot (due to we let i traverse only when i <= pivot, or i > pivot we swap to get i <= pivot)
+// So the last position of j always <= pivot, then we can swap pivot with this position:
 // Last step: swap value of pivot and j
-// Return the index of the pivot (which is j)
+// Return the index of the pivot (which is j after swapping)
 
 // Repeat Partitioning in range [low, pivot) and [pivot+1, high)
 
