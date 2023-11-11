@@ -11,7 +11,10 @@ using namespace std;
 // NOTE: high always out range
 
 // IDEA: choose a randomized pivot, for each loop try to get the pivot the right position
-// such as all the value in the left side of pivot smaller than pivot, and also the right side...
+// such as partition the array into two seperated partition
+// Left partition: all the value <= pivot
+// Right partiton: all the value > pivot
+// Then swap pivot with last value of left partition => Repeat
 
 // We start sort the array in [low, high) (not include high)
 // 1. Get RANDOM: choose a random pivot: index between [low, high)

@@ -92,12 +92,14 @@ void solve() {
     int l = 0, r = 0, sum = 0, ans = -1;    // r = 0 mean we not accept index 0, r = 1 mean we accept index 0
     
     // index l is start pointer of the window, and index r-1 is end pointer 
-    // ===> so index r is no included yet until it is checked to be valid
+    // ===> so index r is not included yet until it is checked to be valid
 
     // Always keep [l,r-1] valid, check if index r is valid (range [l, r] is valid)
     // + if valid => r can be added in range, then increase r for next check
     // + if [l,r] not valid => gradually increase l to get valid range
-    while (r <= n - 1) { 
+
+    // ***Note: when any while loop stop, r is always out of valid range
+    while (r <= n - 1) { // r < nums.size()
         int nextSum = sum + books[r];
         if (nextSum <= t) sum += books[r++];
         else if (nextSum > t) sum -= books[l++];
