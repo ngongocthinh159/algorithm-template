@@ -98,6 +98,10 @@ void solve() {
     // + if valid => r can be added in range, then increase r for next check
     // + if [l,r] not valid => gradually increase l to get valid range
 
+    // Khi check condition while loop để tăng r, luôn check valid của range [l, r-1]
+    // (vì hiện tại r còn chưa được add vào range)
+    // Chỉ khi [l, r-1] valid thì mới add r vào range, sau đó tăng r++
+
     // ***Note: when any while loop stop, r is always out of valid range
     while (r <= n - 1) { // r < nums.size()
         int nextSum = sum + books[r];

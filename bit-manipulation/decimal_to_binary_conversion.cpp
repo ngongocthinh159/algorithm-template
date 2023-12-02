@@ -1,18 +1,18 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-string decimalToBinaryConversion(int n);
+string decimalToBinaryConversion_LSB_Checking(int n);
 string decimalToBinaryConversion_Devision(int n);
 
 int main() {
-    cout << decimalToBinaryConversion(1441) << "\n";
+    cout << decimalToBinaryConversion_LSB_Checking(1441) << "\n";
     cout << decimalToBinaryConversion_Devision(1441) << "\n";
 
     return 0;
 }
 
 // Bit manipulation (checking LSB => Then remove LSB => Repeat)
-string decimalToBinaryConversion(int n) {
+string decimalToBinaryConversion_LSB_Checking(int n) {
     // Check the LSB (least significant bit) of N is 1 or 0
     string res = "";
     while (n != 0) {
@@ -21,7 +21,7 @@ string decimalToBinaryConversion(int n) {
         } else {
             res+='0';
         }
-        n>>=1;
+        n>>=1; // Right shift by 1
     }
     // Reverse res
     string tmp = "";
