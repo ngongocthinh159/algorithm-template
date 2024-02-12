@@ -1,4 +1,3 @@
-
 // O(sqrt(N))
 vector<long long> findFactors(long long n) {
     vector<long long> factors;
