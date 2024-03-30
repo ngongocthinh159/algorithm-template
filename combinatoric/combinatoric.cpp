@@ -20,10 +20,10 @@ struct Combinatoric {
             ifact[i] = mod_mul(ifact[i + 1], i + 1, this->mod);
         }
     }
-    vector<ll> getFactArray() {
+    vector<ll> &getFactArray() {
         return this->fact;
     }
-    vector<ll> getIFactArray() {
+    vector<ll> &getIFactArray() {
         return this->ifact;
     }
 
@@ -32,12 +32,17 @@ struct Combinatoric {
     // require: r <= n 
     // O(1)
     ll combination1(ll n, ll r) {
+        assert(n <= this->mxN);
+        assert(r <= n);
+
         return mod_mul(fact[n], mod_mul(ifact[r], ifact[n - r], this->mod), this->mod);
     }
 };
 // C(n,r): in O(r + log(mod)) each time
 // Use when call C(n,r) a few times or n is to large (r is still acceptable)
 ll combination_Or(ll n, ll r, ll mod) {
+    assert(r <= n);
+
     ll numerator = 1;
     ll denominator = 1;
     for (ll i = n; i >= n - r + 1; i--) {
