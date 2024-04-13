@@ -6,75 +6,64 @@ int gen_base(const int before, const int after) {
 
 struct PolyHash {
     // -------- Static variables --------
-    static const int mod = (int)1e9 + 123;  // prime mod of polynomial hashing
-    static vector<int> pow1;                // powers of base modulo mod
-    static vector<ull> pow2;                // powers of base modulo 2^64
-    static int base;                        // base (point of hashing)
-
-    // --------- Static functons --------
-    static inline int diff(int a, int b) {
-        // Diff between `a` and `b` modulo mod (0 <= a < mod, 0 <= b < mod)
-        return (a -= b) < 0 ? a + mod : a;
+    static const ull mod = (ull(1) << 61) - 1; // prime mod of hashing
+    static int base;                           // odd base of hashing
+    static std::vector<ull> pow;               // powers of base modulo mod;
+ 
+    // -------- Static functions --------
+    static inline ull add(ull a, ull b) {
+        // Calculate (a + b) % mod, 0 <= a < mod, 0 <= b < mod
+        return (a += b) < mod ? a : a - mod;
     }
-
-    // -------------- Variables of class -------------
-    vector<int> pref1;  // Hash on prefix modulo mod
-    vector<ull> pref2;  // Hash on prefix modulo 2^64
-
-    // Cunstructor from string:
-    PolyHash(const string& s) {
-        assert(base < mod);
-        const int n = s.size();  // Firstly calculated needed power of base:
-        while ((int)pow1.size() <= n) {
-            pow1.push_back(1LL * pow1.back() * base % mod);
-            pow2.push_back(pow2.back() * base);
+ 
+    static inline ull sub(ull a, ull b) {
+        // Calculate (a - b) % mod, 0 <= a < mod, 0 <= b < mod
+        return (a -= b) < mod ? a : a + mod;
+    }
+ 
+    static inline ull mul(ull a, ull b){
+        // Calculate (a * b) % mod, 0 <= a < mod, 0 <= b < mod
+        ull l1 = (uint32_t)a, h1 = a >> 32, l2 = (uint32_t)b, h2 = b >> 32;
+        ull l = l1*l2, m = l1*h2 + l2*h1, h = h1*h2;
+        ull ret = (l & mod) + (l >> 61) + (h << 3) + (m >> 29) + (m << 35 >> 3) + 1;
+        ret = (ret & mod) + (ret >> 61);
+        ret = (ret & mod) + (ret >> 61);
+        return ret-1;
+    }
+ 
+    // -------- Variables of class --------
+    std::vector<ull> pref; // polynomial hash on prefix
+ 
+    // Constructor from string:
+    PolyHash(const std::string& s) 
+        : pref(s.size()+1u, 0) 
+    {
+        // Pre-calculate powers of base:
+        while (pow.size() <= s.size()) {
+            pow.push_back(mul(pow.back(), base));
         }
-
-        // Initilize prefix hash for each mod: pref[k] = prefix hash of first k elements
-        pref1 = vector<int>(s.size() + 1u, 0);
-        pref2 = vector<ull>(s.size() + 1u, 0);
-        for (int i = 0; i < n; ++i) {  // Fill arrays with polynomial hashes on prefix
-            assert(base > s[i]);
-            pref1[i + 1] = (pref1[i] + 1LL * s[i] * pow1[i]) % mod;
-            pref2[i + 1] = pref2[i] + s[i] * pow2[i];  // C++ auto % 2^64 for ull
+        // Calculate polinomial hash on prefix:
+        for (int i = 0; i < (int)s.size(); ++i) {
+            pref[i+1] = add(mul(pref[i], base), s[i]);
         }
     }
-
-    // Polynomial hash of subsequence [pos, pos+len)
-    // If mxPow != 0, value automatically multiply on base in needed power. Finally base ^ mxPow
-    // pos: is index in the string
-    // mxPow: max length of all the strings, specify when call this function
-    inline pair<int, ull> operator()(const int pos, const int len, const int mxPow) const {
-        int hash1 = pref1[pos + len] - pref1[pos];
-        ull hash2 = pref2[pos + len] - pref2[pos];
-        if (hash1 < 0) hash1 += mod;
-        if (mxPow != 0) {
-            hash1 = 1LL * hash1 * pow1[mxPow - (pos + len - 1)] % mod;
-            hash2 *= pow2[mxPow - (pos + len - 1)];
-        }
-        return make_pair(hash1, hash2);
+ 
+    // Get hash from [pos, pos+len-1] segment of string
+    inline ull operator()(const int pos, const int len) const {
+        return sub(pref[pos+len], mul(pref[pos], pow[len]));
     }
+ 
 };
+ 
+// Init static variables of class PolyHash:
+int PolyHash::base((int)1e9+7);
+std::vector<ull> PolyHash::pow{1};
 
-// Init static variables of PolyHash class:
-int PolyHash::base((int)1e9 + 7);
-vector<int> PolyHash::pow1{1};
-vector<ull> PolyHash::pow2{1};
-
-const int mxPow = max((int)s1.size(), (int)s2.size()); // phai khai bao khi tinh hash, mxPow la max(s.len)
-PolyHash::base = gen_base(256, PolyHash::base); // gen random base [256->1e9 + 7]
 
 
 
 /**
- * Use:
-    const int mxPow = max((int)s1.size(), (int)s2.size()); // phai khai bao khi tinh hash, mxPow la max(s.len)
-    PolyHash::base = gen_base(256, PolyHash::base); // gen random base [256->1e9 + 7]
-
-    PolyHash h1(s1), h2(s2);
-    
-    const auto need = h2(0, (int)s2.size(), mxPow);
-    for (int l = 0; l + (int)s2.size() <= s1.size(); l++) {
-        if (h1(l, (int)s2.size(), mxPow) == need) cout << l << " "; // tinh hash h1(l, len, mxPow)
-    }
+PolyHash::base = gen_base(256, 2e9);
+PolyHash hash_s(s);
+hash_s(l, len);
 */
