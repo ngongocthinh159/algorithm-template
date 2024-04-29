@@ -1,9 +1,9 @@
 struct Trie {
     struct Node {
-        Node* child[26];
+        vector<Node*> child;
         int cnt;
         Node() {
-            for (int i = 0; i < 26; i++) child[i] = NULL;
+            child.assign(26, NULL);
             cnt = 0;
         }
     };
@@ -35,17 +35,43 @@ struct Trie {
         return p->cnt > 0;
     }
 
-    bool startWith(string &s) {
+    // Check if any string start has prefix
+    bool startWith(string &prefix) {
         Node* p = root;
         int idx;
-        for (int i = 0; i < s.size(); i++) {
-            idx = s[i] - 'a';
+        for (int i = 0; i < prefix.size(); i++) {
+            idx = prefix[i] - 'a';
             if (p->child[idx] == NULL) return false;
             p = p->child[idx];
         }
         return true;
     }
-    
+
+    // Get all string start with prefix
+    vector<string> getAllStrStartWith(string &prefix) {
+        Node* p = root;
+        int idx;
+        vector<string> res;
+        for (int i = 0; i < prefix.size(); i++) {
+            idx = prefix[i] - 'a';
+            if (p->child[idx] == NULL) return {}; // no string match the prefix => Empty result
+            p = p->child[idx];
+        }
+        string path = prefix;
+        dfs_getAllStr(p, path, res);
+        return res;
+    }
+    void dfs_getAllStr(Node* p, string &path, vector<string> &res) {
+        if (p->cnt > 0) res.push_back(path); 
+        for (int i = 0; i < p->child.size(); i++) {
+            if (p->child[i] != NULL) {
+                path += ('a' + i);
+                dfs_getAllStr(p->child[i], path, res);
+                path.pop_back();
+            }
+        }
+    }
+
     bool remove(string &s) {
         remove_internal(root, 0, s);
     }
@@ -58,10 +84,10 @@ struct Trie {
             return shouldDeleteCurrentNode(p); // no need to check deleting child in the current path because this is the last child
         }
 
-        bool shouldDeleteChild = remove_internal(p->child[i], i + 1, s);
+        bool shouldDeleteChild = remove_internal(p->child[s[i] - 'a'], i + 1, s);
         if (shouldDeleteChild) {
-            delete p->child[i];
-            p->child[i] = NULL;
+            delete p->child[s[i] - 'a'];
+            p->child[s[i] - 'a'] = NULL;
         }
         // only delete current node when:
         // + child is deleted
