@@ -46,6 +46,13 @@ int lca(int u, int v) {
     return par[u][0];
 }
 
+int jump(int u, int j) {
+    for (int i = LOG; i >= 0; i--) {
+        if (j & (1 << i)) u = par[u][i];
+    }
+    return u;
+}
+
 // Usage
 void pre_process() {
     build_graph();
