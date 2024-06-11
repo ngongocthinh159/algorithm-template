@@ -30,6 +30,7 @@ int lca(int u, int v) {
     if (height[u] < height[v]) lca(v, u);
 
     // equalize height
+    // after jump the u height stil >= v height => jump
     for (int i = LOG; i >= 0; i--) {
         if (height[par[u][i]] >= height[v]) u = par[u][i];
     }
@@ -46,6 +47,7 @@ int lca(int u, int v) {
     return par[u][0];
 }
 
+// jump 2^j edges from u
 int jump(int u, int j) {
     for (int i = LOG; i >= 0; i--) {
         if (j & (1 << i)) u = par[u][i];
@@ -67,7 +69,7 @@ void pre_process() {
      * }
     */
     dfs(root);
-    height[dummy] = -1;
+    height[dummy] = -1; // must set dummy height = -1 for: height[par[u][i]] >= height[v] in LCA always correct
 
     lca(u, v);
 }
