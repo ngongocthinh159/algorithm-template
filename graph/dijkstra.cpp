@@ -4,33 +4,29 @@ using namespace std;
 /**
  * Không trace path
 */
-struct comparator {
-  bool operator() (const pair<int,int> &a, const pair<int,int> &b) const {
-    if (b.second < a.second) return true;
-    return false;
-  }
-};
-void shortestPath(int s, vector<vector<pair<int,int>>>& g, vector<int> &dist) {
-    // setup
-    dist = vector<int>(g.size() + 1, INT_MAX);
-    priority_queue<pair<int,int>, vector<pair<int,int>>, comparator > pq; // min pq
+vector<ll> dijkstra(int src, vector<vector<pair<int,ll>>>& g, int n) {
+    vector<ll> dist(n + 1, LINF);
+    set<pair<ll,int>> S;
+    S.insert({0,src});
+    dist[src] = 0;
     
-    pq.push({s, 0});
-    dist[s] = 0;
-    while (pq.size()) {
-        auto best = pq.top(); pq.pop();
-        int u = best.first;
-        int w = best.second;
+    while (S.size()) {
+        auto p = *S.begin();
+        S.erase(S.begin());
+        int u = p.second;
+        int w_u = p.first;
 
-        for (auto nei : g[u]) {
-            int v = nei.first;
-            int w_uv = nei.second;
-            if (w + w_uv < dist[v]) {
-                dist[v] = w + w_uv;
-                pq.push({v, dist[v]});
+        for (auto _p : g[u]) {
+            int v = _p.first;
+            int w_uv = _p.second;
+            if (dist[v] > w_u + w_uv) {
+                S.erase({dist[v], v});
+                dist[v] = w_u + w_uv;
+                S.insert({dist[v], v});
             }
         }
     }
+    return dist;
 }
 
 
