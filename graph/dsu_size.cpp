@@ -1,11 +1,9 @@
 struct DSU {
-    int mxN;
     vector<int> parent;
     vector<int> size;
-    DSU(int mxN) {
-        this->mxN = mxN;
-        parent.resize(mxN + 1);
-        size.resize(mxN + 1);
+    DSU(int n) {
+        parent.resize(n + 1);
+        size.resize(n + 1);
     }
     void make_set(int x) {
         parent[x] = x;
@@ -25,5 +23,8 @@ struct DSU {
             size[ra] += size[rb];
             parent[rb] = ra;
         }
+    }
+    int find_size(int x) {
+        return size[find(x)];
     }
 };

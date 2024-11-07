@@ -1,11 +1,9 @@
 struct DSU {
-    int mxN;
     vector<int> parent;
     vector<int> rank;
-    DSU(int mxN) {
-        this->mxN = mxN;
-        parent.resize(mxN + 1);
-        rank.resize(mxN + 1);
+    DSU(int n) {
+        parent.resize(n + 1);
+        rank.resize(n + 1);
     }
     void make_set(int x) {
         parent[x] = x;
