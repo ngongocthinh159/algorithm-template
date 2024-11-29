@@ -1,9 +1,12 @@
 struct DSU {
     vector<int> parent;
     vector<int> size;
-    DSU(int n) {
+    DSU(int n, bool auto_make_set = true) {
         parent.resize(n + 1);
         size.resize(n + 1);
+        if (auto_make_set) {
+            for (int i = 0; i <= n; i++) parent[i] = i, size[i] = 1;
+        }
     }
     void make_set(int x) {
         parent[x] = x;
