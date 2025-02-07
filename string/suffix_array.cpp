@@ -2,30 +2,31 @@
 struct SuffixArray {
     string s;
     int n;
+    int alphabet;
     vector<int> _p, _lcp, _idx_to_pidx;
     vector<vector<int>> rmq;
     bool query_lcp_ij = false;
 
-    SuffixArray(string &str, bool query_lcp_ij = false) {
+    SuffixArray(string &str, bool query_lcp_ij = false, int alphabet = 256) {
         s = str;
         n =  s.size();
+        this->alphabet = alphabet;
         _p = suffix_array_construction(s);
         _lcp = lcp_construction(s, _p);
 
         if (query_lcp_ij) {
-            this->query_lcp_ij = true;;
+            this->query_lcp_ij = true;
             int LOG = __lg(n) + 1;
             rmq.assign(LOG + 1, vector<int>(_lcp.size()));
             for (int i = 0; i < _lcp.size(); i++) rmq[0][i] = _lcp[i];
             for (int j = 1; j <= LOG; j++)
-                for (int i = 0; i + (1 << j) < _lcp.size(); i++)
+                for (int i = 0; i + (1 << j) - 1 < _lcp.size(); i++)
                     rmq[j][i] = min(rmq[j - 1][i], rmq[j - 1][i + (1 << (j - 1))]);
         }
     }
 
     vector<int> sort_cyclic_shifts(string const& s) {
         int n = s.size();
-        const int alphabet = 256;
 
         // h = 0, sorted n cycle strings by comparing 2^0 = 1 (the first) character
         vector<int> p(n), c(n), cnt(max(alphabet, n), 0);
@@ -223,5 +224,6 @@ struct SuffixArray {
             else    
                 printf("%-5d %-20s %-5d\n", i, s.substr(_p[i]).c_str(), _p[i]);
         }
+        fflush(stdout);
     }
 };
