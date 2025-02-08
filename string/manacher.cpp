@@ -1,77 +1,59 @@
-// "$" + s + "^": handle edge case when out of bound to compare
-
-// first i = 1 => initialize r and l out of bound: 0 and 2
-// l l + 1 ... l + k ... center ... center + m ... i ... r - 1 r
-//      => [l+1, r-1] always in valid bound (palindrome with furthest r index)
-//      get max of (r-i, p[l + r - i]): len from i to valid r-1, and len of left asymetric palindrom
-//      
-//      After get max => Explore current palindrom window to both left and right (while still valid)
-//
-//      Update bound r and l if new bound exceed previous r
 struct Manacher {
-    string s; // aabb
-    vector<int> P; // #a#a#b#b#
-    Manacher(string s) {
+    string s;
+    int n;
+    vector<int> p; // p[i]: center i-th has palindrome bound [k,j] then p[i] = j - i + 1 = i - k + 1 (len of one side from center)
+    Manacher(string &s) {
         this->s = s;
-        preprocess();
+        n = s.size();
+        _pre_process();
     }
-
-    void preprocess() {
-        string t = "";
-        for (auto c : this->s) {
-            t += '#';
-            t += c;
-        }
-        t += "#";
-        this->P = manacher_odd(t);
+    void _pre_process() {
+        // transform orginal "ABA" => "#A#B#A#"
+        string t;
+        for (auto c : s) t += '#', t += c;
+        t += '#';
+        p = _manacher_odd(t); // p array is actually counted for transformed string
     }
-
-    vector<int> getPArray() {
-        return this->P;
-    }
-
-    // 0-based index
-    // Odd: cenIdx
-    // Even (only cenIdx >= 1): cenIdx && cenIdx - 1 
-    int getLongest(int cenIdx, bool odd) {
-        int idx;
-        if (odd) idx = 1 + 2*cenIdx;
-        else idx = 1 + 2*cenIdx - 1;
-        return this->P[idx] - 1;
-    }
-    
-    // 0-based index
-    bool isPalindrome(int l, int r) {
-        return (r-l+1) <= getLongest((l+r+1)/2, l%2==r%2);
-    }
-
-    vector<int> manacher_odd(string s) {
-        int n = s.size();
-        s = "$" + s + "^";
+    vector<int> _manacher_odd(string &str) {
+        int n = str.size();
+        string t = '^' + str + '$'; // "$" + s + "^": handle edge case when out of bound to compare
         vector<int> p(n + 2);
-        int l = 0, r = 2;   
-        for (int i = 1; i <= n; i++) {
-            p[i] = max(0, min(r - i, p[l + r - i]));    
-            while (s[i - p[i]] == s[i + p[i]]) {
-                p[i]++;
-            }
-            if (i + p[i] > r) {
-                l = i - p[i]; r = i + p[i];
-            }
+        for (int i = 1, l = 1, r = 1; i <= n; i++) {
+            if (i <= r) p[i] = min(p[l + r - i], r - i + 1);
+            while (t[i + p[i]] == t[i - p[i]]) ++p[i];
+            if (i + p[i] - 1 > r) l = i - p[i] + 1,  r = i + p[i] - 1;
         }
         return vector<int>(p.begin() + 1, p.end() - 1);
+    }
+
+    int get_longest(int centerIdx, bool odd = true) {
+        if (!odd) assert(centerIdx >= 1);
+        
+        int pidx = odd ? 2*centerIdx + 1 : 2*centerIdx; // convert from original to tranformed
+        return p[pidx] - 1;
+    }
+
+    bool is_palindrome(int l, int r) {
+        int centerIdx = (l + r + 1)/2;
+        return get_longest(centerIdx, l%2==r%2) >= (r - l + 1);
+    }
+
+    // p[i]: center i-th has palindrome bound [k,j] then p[i] = j - i + 1 = i - k + 1 (len of one side from center)
+    int get_p_at(int centerIdx, bool odd = true) {
+        int pidx = odd ? 2*centerIdx + 1 : 2*centerIdx;
+        return p[pidx]/2;
     }
 };
 
 /**
  * Usage:
  *  int countSubstrings(string s) {
-        Manacher m(s);
-        int ans = 0;
-        for (int i = 0; i < s.size(); i++) {
-            ans += ceil((double) m.getLongest(i, true)/2);
-            if (i>=1) ans += m.getLongest(i, false)/2;
+        Manacher mana(s);
+        for (int i = 0; i < n; i++) {
+            mana.get_longest(i);
+            if (i >= 1) mana.get_longest(i, false);
+            mana.get_p_at(i);
         }
-        return ans;
+        mana.is_palindrome(0, n - 1);
     }
 */
