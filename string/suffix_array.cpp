@@ -169,7 +169,7 @@ struct SuffixArray {
         return 0;
     }
 
-        int _compare_with_suffix(string &t, int suffix_idx) {
+    int _compare_with_suffix(string &t, int suffix_idx) {
         int i = 0, j = suffix_idx;
         while (i < t.size() && j < n && t[i] == s[j]) i++, j++;
 
