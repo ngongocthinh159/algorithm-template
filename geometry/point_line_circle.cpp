@@ -35,6 +35,16 @@ struct Point {
     op(*) op(/)
 #undef op
 
+    friend istream& operator >> (istream& is, Point& p) {
+        is >> p.x >> p.y;
+        return is;
+    }
+
+    friend ostream& operator << (ostream& os, Point& p) {
+        os << p.x << " " << p.y;
+        return os;
+    }
+
     double dot(const Point& q) const {
         return x * q.x + y * q.y;
     }
@@ -56,6 +66,14 @@ struct Point {
         double sina = sin(alpha);
         return Point(x * cosa - y * sina, x * sina + y * cosa);
     }
+
+    double dist(const Point& q) const {
+        return (*this - q).len();
+    }
+
+    double mandist(const Point& q) const {
+        return abs(x - q.x) + abs(y - q.y);
+    }
 };
 
 /**
@@ -74,10 +92,10 @@ struct Line {
     }
 
     Line(Point P, double k) {
-        if (k == DBL_MAX) { // case line is orthogonal with x-axis
+        if (k == DBL_MAX) { // case line is orthogonal with x-axis (equation: x = p.x)
             a = 1;
             b = 0;
-            c = - (a * p.x + b * p.y);
+            c = -P.x;
             return;
         }
         a = -k;
@@ -89,8 +107,11 @@ struct Line {
         return a * A.x + b * A.y + c;
     }
 
-    double distFromPoint(const Point& p) const {
-        return abs(p.x * a + p.y * b + c) / sqrt(a * a + b * b);
+    // calculate distance from a point to line if already has the line object
+    double distFromPoint(const Point& p, Point &c) const { // c is projection of point q into current line
+        double k = - (p.x * a + p.y * b + c) / (a * a + b * b);
+        c = p + Point(k * a, k * b);
+        return abs(k) * sqrt(a * a + b * b);
     }
 };
 
@@ -113,7 +134,7 @@ bool areIntersect(Line l1, Line l2, Point &p) { // p is the intersect point (if 
 }
 
 // calculate distance from point p to line if know two points belongs to line (a, b)
-double distToLine(Point p, Point a, Point b, Point &c) { // c is projection of point p into line (a, b) (if have)
+double distToLine(Point p, Point a, Point b, Point &c) { // c is projection of point p into line (a, b)
     Point ap = p - a, ab = b - a;
     double k = ap.dot(ab) / ab.norm();
     c = a + (ab * k);
@@ -165,4 +186,65 @@ vector<Point> intersection(Line l, Circle cir) {
     res.push_back(Point(ax, ay) + Point(cir.x, cir.y));
     res.push_back(Point(bx, by) + Point(cir.x, cir.y));
     return res;
+}
+
+/**
+ * ########### Polygon
+ */
+using Polygon = vector<Point>;
+
+double signedArea(const Polygon& p) {
+    double area = 0;
+    for (int j, i = 0; i < (int) p.size(); i++) {
+        j = (i + 1) % (int) p.size();
+        area += p[i].cross(p[j]);
+    }
+    return area / 2.00;
+}
+
+double area(const Polygon& p) {
+    return fabs(signedArea(p));
+}
+
+// check if rotation from vector ab -> vector ac is ccw 
+// (the rotation angle is always took the less than 180 direction according to cross product)
+int ccw(Point a, Point b, Point c) {
+    return cmp((b - a).cross(c - a), 0);
+}
+
+bool isConvex(const Polygon& p) { // set of points must be already sorted by convex edges ccw or cw
+    int sz = p.size();
+    if (sz < 3) 
+        return false;
+    int turn = ccw(p[0], p[1], p[2]);
+    for (int i = 1; i < sz; i++)
+        if (ccw(p[i], p[(i+1) % sz], p[(i+2) % sz]) * turn < 0)
+            return false;
+    return true;
+}
+
+void convexHullGraham(Polygon& pts) {
+    // choose pivot: lowest y, x
+    Point pivot = pts[0];
+    for (int i = 1; i < (int) pts.size(); i++)
+        if (pivot.y > pts[i].y
+                || (pivot.y == pts[i].y && pivot.x > pts[i].x))
+            pivot = pts[i];
+    
+    // sort remaining points based on angle with pivot and Ox axis, tie break with smaller distance first
+    sort(pts.begin(), pts.end(), [&](Point& p, Point& q) {
+        int is_ccw = ccw(pivot, p, q);
+        if (is_ccw > 0) return true;
+        return is_ccw == 0 && (p - pivot).norm() < (q - pivot).norm();
+    });
+    pts.erase(uniqe(pts.begin(), pts.end()), pts.end()); // remove duplicate points
+    if (pts.size() < 3) return;
+
+    // find convex hull
+    int n = 0;
+    for (int i = 0; i < (int) pts.size(); i++) {
+        while (n >= 2 && ccw(pts[n - 2], pts[n - 1], pts[i]) <= 0) n--;
+        pts[n++] = pts[i];
+    }
+    pts.resize(n);
 }
