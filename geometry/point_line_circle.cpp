@@ -83,9 +83,9 @@ struct Line {
     double a, b, c;
     Point A, B;
 
-    Line(double a, double b, double c) : a(a), b(b), c(c) {}
+    Line(double _a, double _b, double _c) : a(_a), b(_b), c(_c) {}
 
-    Line(Point A, Point B) : A(A), B(B) {
+    Line(Point _A, Point _B) : A(_A), B(_B) {
         a = B.y - A.y;
         b = A.x - B.x;
         c = -(a * A.x + b * A.y);
@@ -103,14 +103,14 @@ struct Line {
         c = k * P.x - P.y;
     }
 
-    double f(Point A) {
-        return a * A.x + b * A.y + c;
+    double f(const Point& P) {
+        return a * P.x + b * P.y + c;
     }
 
     // calculate distance from a point to line if already has the line object
-    double distFromPoint(const Point& p, Point &c) const { // c is projection of point q into current line
+    double distFromPoint(const Point& p, Point &projectedPoint) const { // projectedPoint is projection of point p into current line
         double k = - (p.x * a + p.y * b + c) / (a * a + b * b);
-        c = p + Point(k * a, k * b);
+        projectedPoint = p + Point(k * a, k * b);
         return abs(k) * sqrt(a * a + b * b);
     }
 };
@@ -147,9 +147,9 @@ double distToLine(Point p, Point a, Point b, Point &c) { // c is projection of p
 struct Circle : Point {
     double r;
 
-    Circle(double x = 0, double y = 0, double r = 0) : Point(x, y), r(r) {}
+    Circle(double _x = 0, double _y = 0, double _r = 0) : Point(_x, _y), r(_r) {}
 
-    Circle(Point p, double r) : Point(p), r(r) {}
+    Circle(Point _p, double _r) : Point(_p), r(_r) {}
 
     bool contains(Point p) { // return true if point p is inside the circle
         return (*this - p).len() <= r + EPS;
@@ -237,7 +237,7 @@ void convexHullGraham(Polygon& pts) {
         if (is_ccw > 0) return true;
         return is_ccw == 0 && (p - pivot).norm() < (q - pivot).norm();
     });
-    pts.erase(uniqe(pts.begin(), pts.end()), pts.end()); // remove duplicate points
+    pts.erase(unique(pts.begin(), pts.end()), pts.end()); // remove duplicate points
     if (pts.size() < 3) return;
 
     // find convex hull
@@ -247,4 +247,23 @@ void convexHullGraham(Polygon& pts) {
         pts[n++] = pts[i];
     }
     pts.resize(n);
+}
+
+void convexHullMonotoneChain(Polygon& pts) {
+    sort(pts.begin(), pts.end());
+    pts.erase(unique(pts.begin(), pts.end()), pts.end());
+
+    Polygon up, down;
+    for (int i = 0; i < (int) pts.size(); i++) {
+        while ((int) up.size() >= 2 && ccw(up[up.size() - 2], up[up.size() - 1], pts[i]) >= 0)
+            up.pop_back();
+        up.push_back(pts[i]);
+
+        while ((int) down.size() >= 2 && ccw(down[down.size() - 2], down[down.size() - 1], pts[i]) <= 0)
+            down.pop_back();
+        down.push_back(pts[i]);
+    }
+    pts = down;
+    for (int i = up.size() - 2; i > 0; i--)
+        pts.push_back(up[i]);
 }
