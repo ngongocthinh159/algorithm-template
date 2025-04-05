@@ -141,6 +141,13 @@ double distToLine(Point p, Point a, Point b, Point &c) { // c is projection of p
     return (p - c).len();
 }
 
+// check if point P is in segment AB
+bool isInSegment(const Point& A, const Point& B, const Point& P) {
+    // cout << ((A - P).norm() + (B - P).norm()) << nline;
+    // cout << (A - B).norm() << nline;
+    return cmp((A - P).len() - (A - B).len() + (B - P).len(), 0) == 0;
+}
+
 /**
  * ########### Circle
  */
@@ -266,4 +273,41 @@ void convexHullMonotoneChain(Polygon& pts) {
     pts = down;
     for (int i = up.size() - 2; i > 0; i--)
         pts.push_back(up[i]);
+}
+
+double triangleArea(const Point& A, const Point& B, const Point& C) {
+    return fabs((B - A).cross(C - A) / 2.0);
+}
+
+// check if point P is inside the triangle ABC (include boundary)
+bool isInTriangle(const Point& A, const Point& B, const Point& C, const Point& P) {
+    return cmp(triangleArea(A, B, P) + triangleArea(A, C, P) + triangleArea(B, C, P) - triangleArea(A, B, C), 0) == 0;
+}
+
+// check if point P is inside the convex polygon ps
+// ps must be convex before passing in
+bool isInPolygon(Polygon& ps, const Point& P) {
+    if (ps.size() == 1) return ps[0] == P;
+    if (ps.size() == 2) return isInSegment(ps[0], ps[1], P);
+    
+    int n = ps.size();
+    int l = 1, r = n;
+    while (r - l > 1) {
+        int m = l + (r - l)/2;
+        int res = ccw(ps[0], ps[m], P);
+        if (res == 0) {
+            return isInSegment(ps[0], ps[m], P);
+        }
+        if (res > 0) 
+            l = m;
+        else
+            r = m;
+    }
+    if (l == 0) {
+        return isInSegment(ps[0], ps[1], P);
+    } else if (l == n - 1) {
+        return false;
+    } else {
+        return isInTriangle(ps[0], ps[l], ps[l + 1], P);
+    }
 }
