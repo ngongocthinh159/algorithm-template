@@ -27,7 +27,7 @@ void dfs(int u) {
 }
 
 int lca(int u, int v) {
-    if (height[u] < height[v]) lca(v, u);
+    if (height[u] < height[v]) swap(u, v);
 
     // equalize height
     // after jump the u height stil >= v height => jump

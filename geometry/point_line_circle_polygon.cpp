@@ -287,6 +287,7 @@ bool isInTriangle(const Point& A, const Point& B, const Point& C, const Point& P
 // check if point P is inside the convex polygon ps
 // ps must be convex before passing in
 bool isInPolygon(Polygon& ps, const Point& P) {
+    // degenerate case
     if (ps.size() == 1) return ps[0] == P;
     if (ps.size() == 2) return isInSegment(ps[0], ps[1], P);
     
