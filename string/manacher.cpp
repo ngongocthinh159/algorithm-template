@@ -40,6 +40,7 @@ struct Manacher {
 
     // p[i]: center i-th has palindrome bound [k,j] then p[i] = j - i + 1 = i - k + 1 (len of one side from center)
     int get_p_at(int centerIdx, bool odd = true) {
+        if (!odd) assert(centerIdx >= 1);
         int pidx = odd ? 2*centerIdx + 1 : 2*centerIdx;
         return p[pidx]/2;
     }
