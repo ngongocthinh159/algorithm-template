@@ -33,11 +33,20 @@ for(int mask = 0; mask < (1<<N); ++mask){
 	F[mask] = dp[mask][N-1];
 }
 
-
+// Subset sum
 //memory optimized, super easy to code.
 for (int i = 0; i < (1<<N); ++i) // when i = -1 (only -1 LSB bit (0 bits) differ => F[i] = A[i])
 	F[i] = A[i];
 for (int i = 0; i < N; ++i) for (int mask = 0; mask < (1<<N); ++mask) {
 	if(mask & (1<<i))
+		F[mask] += F[mask^(1<<i)];
+}
+
+// Superset sum
+//memory optimized, super easy to code.
+for (int i = 0; i < (1<<N); ++i) // when i = -1 (only -1 LSB bit (0 bits) differ => F[i] = A[i])
+	F[i] = A[i];
+for (int i = 0; i < N; ++i) for (int mask = 0; mask < (1<<N); ++mask) {
+	if(!(mask & (1<<i))) // only line that change
 		F[mask] += F[mask^(1<<i)];
 }
