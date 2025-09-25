@@ -1,6 +1,7 @@
 ### Executable ###
 *.exe
 .cph
+.idea
 
 input.txt
 output.txt
