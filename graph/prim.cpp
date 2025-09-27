@@ -1,7 +1,7 @@
 // Find MST for dense graph O(E*logV)
 void prim(vector<vector<pair<int,ll>>> &g) {
-    set<pair<ll,int>> S; // min edge to node - node number
-    vector<pair<ll,int>> min_e(n + 1, {LINF,-1}); // cur min edge to a node and parent of edge (u -> v then u is parent)
+    set<pair<ll,int>> S; // <min edge weight to node, node number>
+    vector<pair<ll,int>> min_e(n + 1, {LINF,-1}); // min_e[v] = {min_edge_weight_to_v, min_edge_parent}
     vector<bool> visited(n + 1); // explored nodes
     ll minMST = 0; // min weight of MST
     vector<pair<int,int>> selectedEdges; // selected edges in MST

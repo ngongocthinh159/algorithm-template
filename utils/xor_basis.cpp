@@ -1,5 +1,5 @@
+#define d 30
 int basis[d]; // basis[i] keeps the mask of the vector whose f value is i
-
 int sz; // Current size of the basis
 
 void insertVector(int mask) {
@@ -31,3 +31,21 @@ bool isInVectorSpace(int mask) {
 
     return true;
 }
+
+int findKthSmallestUnique(int k) {
+    int cnt = sz - 1;
+    int ans = 0;
+    for (int bit = d - 1; bit >= 0; bit--) if (basis[bit]) {
+        int decr = min(ans, ans ^ basis[bit]);
+        int incr = max(ans, ans ^ basis[bit]);
+        if (k > (1 << cnt)) {
+            k -= (1 << cnt);
+            ans = incr;
+        } else {
+            ans = decr;
+        }
+        cnt--;
+    }
+    return ans;
+}
+
