@@ -312,3 +312,12 @@ bool isInPolygon(Polygon& ps, const Point& P) {
         return isInTriangle(ps[0], ps[l], ps[l + 1], P);
     }
 }
+
+// Get angle rotate from x-axis to vector OP
+double getAngleFromXAxis(const pair<int,int> &p) {
+    double res = atan2(p.second, p.first) * (180.0 / M_PI);
+    if (res < 0) res += 360;
+    return res;
+}
+
+
