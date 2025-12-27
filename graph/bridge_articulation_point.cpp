@@ -42,21 +42,15 @@ void dfs(int u, int p) {
             dfs(v, u);
             child++;
             sumc += dp[v];
-            if (dp[v] == 0)
-                IS_BRIDGE(u -> v)
-            if (dp[v])
+            if (dp[v] == 0) 
+                IS_BRIDGE(u -> v);
         } else if (color[v] == 1) {
             down[v]++;
             up[v]++;
         }
     }
     dp[u] = up[u] - down[u] + sumc;
-    if (p == -1) {
-        if (child > 1) IS_ARTICULATION_POINT(u);
-    } else {
-        // actually dp[u] - back edges from u -> par u
-        // but in undirected graph, we do not have those edges
-        if (dp[u] == 0) IS_ARTICULATION_POINT(u);
-    }
+    if ((p == -1 && child > 1) || (p != -1 && sumc - down[u] == 0))
+        IS_ARTICULATION_POINT(u);
     color[u] = 2;
 }
