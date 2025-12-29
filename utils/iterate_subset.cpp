@@ -1,5 +1,6 @@
 
 // time: if we have n bits => O(3^n) for iterating all submasks of all masks
+// https://cp-algorithms.com/algebra/all-submasks.html
 
 // iterate over all masks
 for (int mask = 0; mask < (1<<n); mask++){

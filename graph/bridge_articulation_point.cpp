@@ -37,6 +37,7 @@ int color[N], up[N], down[N];
 void dfs(int u, int p) {
     color[u] = 1;
     int sumc = 0, child = 0;
+    int prevDownU = 0, currentDownU = 0;
     for (auto v : g[u]) if (v != p) {
         if (color[v] == 0) {
             dfs(v, u);
@@ -44,13 +45,16 @@ void dfs(int u, int p) {
             sumc += dp[v];
             if (dp[v] == 0) 
                 IS_BRIDGE(u -> v);
+            if (p != -1 && (dp[v] - (currentDownU - prevDownU) == 0))
+                IS_ARTICULATION_POINT(u);
         } else if (color[v] == 1) {
             down[v]++;
             up[v]++;
         }
     }
     dp[u] = up[u] - down[u] + sumc;
-    if ((p == -1 && child > 1) || (p != -1 && sumc - down[u] == 0))
+    // special case root node
+    if (p == -1 && child >= 2)
         IS_ARTICULATION_POINT(u);
     color[u] = 2;
 }
