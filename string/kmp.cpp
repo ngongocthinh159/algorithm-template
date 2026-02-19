@@ -16,3 +16,13 @@ for (int k = 0; k <= SZ(s); k++)
         if (s[k] == (c + 'a')) next[k][c] = k + 1;
         else next[k][c] = k > 0 ? next[pref[k - 1]][c] : 0;
     }
+
+
+next[0][s[0] - 'A'] = 1;
+for (int i = 1; i < m; i++)
+    for (int c = 0; c < 26; c++) {
+        if (c == s[i] - 'A') 
+            next[i][c] = i + 1;
+        else
+            next[i][c] = next[kmp[i - 1]][c];
+    }
