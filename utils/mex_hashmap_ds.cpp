@@ -1,3 +1,5 @@
+// calculate mex dynamically when insert/remove new elements
+// O(1) per query
 struct MexDS {
     unordered_map<int,int> f;
     int mex;
@@ -18,7 +20,7 @@ struct MexDS {
 };
 int main() {
     MexDS mds;
-    
+
     mds.insert(0);
     mds.insert(1);
     mds.insert(2);
@@ -29,3 +31,23 @@ int main() {
 
     return 0;
 }
+
+
+
+// Other idea, maintaining missing set
+// log(n) per query
+struct MexDS {
+    set<int> missing;
+    MexDS(int maxN) {
+        for (int i = 0; i <= maxN; i++) missing.insert(i);
+    }
+    void insert(int x) {
+        if (++f[x] == 1) missing.erase(x);
+    }
+    void remove(int x) {
+        if (--f[x] == 0) missing.insert(x);
+    }
+    int queryMex() {
+        return *missing.begin();
+    }
+};
